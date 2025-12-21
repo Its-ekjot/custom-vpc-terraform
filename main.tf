@@ -147,3 +147,42 @@ resource "aws_instance" "private_ec2" {
     Name = "Private_EC2"
   }
 }
+
+resource "aws_eip" "natgw_eip" {
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "custom_natgw" {
+  allocation_id = aws_eip.natgw_eip.id
+  subnet_id     = aws_subnet.subnet1.id
+
+  tags = {
+    Name = "CUSTOM_NAT_GW"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.custom_igw]
+}
+
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.custom_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.custom_natgw.id
+  }
+  tags = {
+    Name = "Private_RT"
+  }
+}
+
+resource "aws_route_table_association" "subnet2_ass" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+resource "aws_route_table_association" "subnet4_ass" {
+  subnet_id      = aws_subnet.subnet4.id
+  route_table_id = aws_route_table.private_rt.id
+}
