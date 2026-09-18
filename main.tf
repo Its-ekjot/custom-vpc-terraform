@@ -123,6 +123,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+/*
 
 resource "aws_instance" "public_ec2" {
   ami                    = var.ec2_ami
@@ -186,3 +187,4 @@ resource "aws_route_table_association" "subnet4_ass" {
   subnet_id      = aws_subnet.subnet4.id
   route_table_id = aws_route_table.private_rt.id
 }
+*/
